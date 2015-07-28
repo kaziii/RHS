@@ -1,0 +1,80 @@
+<div ng-controller="ReferralCtrl as referral">
+    <h1 id="forms" class="page-header">添加转诊患者</h1>
+    <div class="well form-horizontal" class="col-sm-2 control-label">
+        <div class="form-group">
+            <label for="patname" class="col-sm-2 control-label">转诊病人</label>
+            <div class="col-sm-6">
+                <input id="patname" class="form-control" type="text" ng-model="referral.info.name"/>
+                <span class="help-block">请输入患者名字（必填）</span>
+            </div>
+            <div class="col-sm-4">
+                <select id="gender" class="form-control">
+                    <option>男</option>
+                    <option>女</option>
+                </select>
+                <span class="help-block">请选择性别（必填）</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="patage" class="col-sm-2 control-label">年龄</label>
+            <div class="col-sm-10">
+                <input id="patage" class="form-control" type="tel" ng-model="referral.info.age"/>
+                <span class="help-block">请输入患者年龄（必填）</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="pattel" class="col-sm-2 control-label">联系方式</label>
+            <div class="col-sm-10">
+                <input id="pattel" class="form-control" type="tel" ng-model="referral.info.telphone"/>
+                <span class="help-block">请输入患者联系方式（选填）</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="doctor" class="col-sm-2 control-label">转诊医生</label>
+            <div class="col-sm-10">
+                <input id="doctor" class="form-control" type="text" ng-model="referral.info.doctor"/>
+                <span class="help-block">请输入转诊医生名字（选填）</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="type" class="col-sm-2 control-label">类别</label>
+            <div class="col-sm-4">
+                <select id="type" class="form-control" ng-model="referral.info.type">
+                    <option value="">---请选择---</option>
+                    <option>住院</option>
+                    <option>门诊治疗</option>
+                    <option>检查</option>
+                    <option>其他</option>
+                </select>
+                <span class="help-block">请选择转诊类型（必填）</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="type" class="col-sm-2 control-label">转入医院</label>
+            <div class="col-sm-4">
+                <select id="to" class="form-control" ng-model="referral.info.to">
+                    <option value="">---请选择---</option>
+                    <option ng-repeat="h in R.hospital track by $index">{{h.name}}</option>
+                </select>
+                <span class="help-block">请选择转入医院（必填）</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="desc" class="col-sm-2 control-label">备注</label>
+            <div class="col-sm-10">
+                <input id="desc" class="form-control" type="text" ng-model="referral.info.desc"/>
+                <span class="help-block">请输入转诊患者基本情况（选填）</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button class="btn btn-success" ng-click="referral.save()">添加转诊</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    setNav(0);
+    var type = 'add';
+</script>

@@ -1,0 +1,36 @@
+<div ng-controller="ReferralCtrl as referral">
+    <table class="table table-striped table-bordered table-hover" datatable="ng" dt-options="R.dtOptions" dt-columns="R.dtColumns">
+        <thead>
+        <tr>
+            <td>名字</td>
+            <td>年龄</td>
+            <td>电话</td>
+            <td>类别</td>
+            <td>备注</td>
+            <td>接收单位</td>
+            <td>状态</td>
+            <td></td>
+            <td></td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="r in R.items track by $index">
+            <td>{{ r.name }}</td>
+            <td>{{r.age}}</td>
+            <td>{{r.telphone}}</td>
+            <td>{{r.type}}</td>
+            <td>{{r.desc}}</td>
+            <td>{{r.to}}</td>
+            <td>{{r.status}}</td>
+            <td>
+                <button ng-click="referral.remove($index)">delete</button>
+            </td>
+            <td>{{r.createTime}}</td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script>
+    setNav(1);
+    var type = 'out';
+</script>

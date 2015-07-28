@@ -1,0 +1,36 @@
+
+<div ng-controller="HospitalCtrl as hospital">
+    <div >
+        <input type="text" ng-model="hospital.info.sn" placeholder="医院编号"/>
+        <input type="text" ng-model="hospital.info.name" placeholder="医院名称"/>
+        <input type="password" ng-model="hospital.info.pwd" placeholder="医院登录密码"/>
+        <input type="text" ng-model="hospital.info.telphone" placeholder="医院联系电话"/>
+        <input type="hidden" ng-model="hospital.editIndex" />
+        <button ng-show="hospital.editIndex<0" ng-click="hospital.save()">保存医院信息</button>
+        <button ng-show="hospital.editIndex>=0" ng-click="hospital.update()">更新医院信息</button>
+    </div>
+    <table class="table table-striped table-bordered table-hover" datatable="ng" dt-options="H.dtOptions" dt-columns="H.dtColumns">
+        <thead>
+        <tr>
+            <td>编号</td>
+            <td>单位名称</td>
+            <td>电话</td>
+            <td>创建时间</td>
+            <td></td>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="h in H.items track by $index">
+            <td>{{ h.sn }}</td>
+            <td>{{h.name}}</td>
+            <td>{{h.telphone}}</td>
+            <td>{{h.createTime}}</td>
+            <td>
+                <button ng-hide="hospital.editIndex==$index" ng-click="hospital.modify($index)">编辑</button>
+                <button ng-click="referral.remove($index)">删除</button>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+<script>setNav(3);</script>
