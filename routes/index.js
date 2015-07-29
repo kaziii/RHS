@@ -192,14 +192,14 @@ router.all('/referral', function(req, res){
                     opt.createTime = {$gt:Number(req.query['dt'])};
                 }
                 console.log(opt);
-                Referral.find(opt, function(err, docs){
-                    if(err) {
-                        console.log(err);
-                        res.send(err);
-                    } else {
-                        console.log(docs);
-                        res.send(docs);
-                    }
+                // 子母表查询 populate()
+                Hospital.find(opt).populate("referral").exec(function(err, docs){
+                   if (err) {
+                    res.send(err);
+                   } else {
+                    res.send(docs);
+                    console.log(docs);
+                   } 
                 });
                 break;
             }
