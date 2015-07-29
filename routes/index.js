@@ -1,6 +1,8 @@
 var express = require('express');
 var path = require('path');
 var mongoose = require('mongoose');
+var mongodb = require('mongodb');
+var Schema = mongoose.Schema;
 var app = express();
 var router = express.Router();
 
@@ -9,18 +11,17 @@ mongoose.connect('mongodb://localhost:27017/HRSDB');
 app.on('close', function(errno) {
     mongoose.disconnect();
 });
-var Hospital = mongoose.model('Hospital',
-    {
+var HospitalSchema = new Schema({
         sn : String, //医院编号
         pwd : String,//密码
         name: String,//医院名字
         telphone: Number,     //联系方式
         createTime: Date,     //创建时间
         lastModifyTime:Date,   //最后修改时间
-    });
+        referral:[{ type: Schema.Types.ObjectId, ref:'Referral'}]
+});
 
-var Referral = mongoose.model('Referral',
-    {
+var ReferralSchema = new Schema({
         name : String, //转诊病人名字
         age : Number, //转诊病人年龄
         telphone:Number, //转诊病人联系方式
@@ -30,8 +31,12 @@ var Referral = mongoose.model('Referral',
         createTime: Number,
         from : String,
         to : String,
-        status : String
-    });
+        status : String,
+        hospital:[{type:Schema.Types.ObjectId,ref:'Hospital'}]
+});
+var Referral = mongoose.model('Referral',ReferralSchema);
+var Hospital = mongoose.model('Hospital',HospitalSchema);
+
 /* GET home page. */
 router.all('/', function(req, res){
       var type = req.method.toLowerCase();
@@ -42,10 +47,10 @@ router.all('/', function(req, res){
                     res.render('error',{});
                 } else {
                     if(docs) {
+                        req.session.user = req.body.sn;
+                        req.session.password = req.body.pwd;
                         res.render('default',{});
                         console.log("登录成功");
-                        res.cookie.user = req.body['sn'];
-                        res.cookie.password = req.body['pwd']
                     }else {
                         res.redirect('/');
                         console.log("登录错误");
@@ -131,65 +136,64 @@ router.all('/hospital', function(req, res){
     }
 });
 
-router.all('/referral', function(req, res){ 
+router.all('/referral', function(req, res){
     var type = req.method.toLowerCase();
-
     switch(type) {
-        case 'post' : {
-            var rf = req.body.referral;
-            rf.createTime = (new Date()).getTime();
-            rf.status = '未接收';
-            rf.from = '测试转入医院';
-            var referral = new Referral(rf);
-            referral.save(function(err, docs){
-                if(err) {
-                    res.send(err);
-                } else {
-                    res.send(docs);
-                }
-            });
-            break;
-        }
-        case 'put' : {
-
-            break;
-        }
-        case 'delete' : {
-            var id = req.query['id'];
-            Referral.findByIdAndRemove(id, function(err){
-                if(err) {
-                    res.send(err);
-                } else {
-                    res.send('ok');
-                }
-            });
-            break;
-        }
-        default : {
-            var type = req.query['type'];
-            var opt = {};
-            if(type == 'in') {
-                opt.to = '成都双楠医院';
+            case 'post' : {
+                var rf = req.body.referral;
+                rf.createTime = (new Date()).getTime();
+                rf.status = '未接收';
+                rf.from = '测试转入医院';
+                var referral = new Referral(rf);
+                referral.save(function(err, docs){
+                    if(err) {
+                        res.send(err);
+                    } else {
+                        res.send(docs);
+                    }
+                });
+                break;
             }
-            if(type == 'out') {
-                opt.from = '测试转入医院';
+            case 'put' : {
+    
+                break;
             }
-            if(req.query['dt']){
-                opt.createTime = {$gt:Number(req.query['dt'])};
+            case 'delete' : {
+                var id = req.query['id'];
+                Referral.findByIdAndRemove(id, function(err){
+                    if(err) {
+                        res.send(err);
+                    } else {
+                        res.send('ok');
+                    }
+                });
+                break;
             }
-            console.log(opt);
-            Referral.find(opt, function(err, docs){
-                if(err) {
-                    console.log(err);
-                    res.send(err);
-                } else {
-                    console.log(docs);
-                    res.send(docs);
+            default : {
+                var type = req.query['type'];
+                var opt = {};
+                if(type == 'in') {
+                    opt.to = '成都双楠医院';
                 }
-            });
-            break;
+                if(type == 'out') {
+                    opt.from = '测试转入医院';
+                }
+                if(req.query['dt']){
+                    opt.createTime = {$gt:Number(req.query['dt'])};
+                }
+                console.log(opt);
+                Referral.find(opt, function(err, docs){
+                    if(err) {
+                        console.log(err);
+                        res.send(err);
+                    } else {
+                        console.log(docs);
+                        res.send(docs);
+                    }
+                });
+                break;
+            }
         }
-    }
-});
+    });
 
 module.exports = router;

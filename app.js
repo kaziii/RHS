@@ -25,11 +25,12 @@ app.use(bodyParser.json({limit:1024*1024*64}));
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(session({
-  secret:'HOSPITAL REFERRAL SYSTEM',
-  key:'HRS',
+  secret:'setting.cookieSecret,',
+  key:'setting.db',
   resave:true,     
   saveUninitialized:true,
-  cookie:{maxAge: 1000 * 60 * 60 * 24 * 365}}));
+  cookie:{maxAge: 1000 * 60 * 60 * 24 * 365},
+}));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', routes);
