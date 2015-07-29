@@ -40,17 +40,18 @@ var Hospital = mongoose.model('Hospital',HospitalSchema);
 /* GET home page. */
 router.all('/', function(req, res){
       var type = req.method.toLowerCase();
+      var user = {sn:req.body['sn'],pwd:req.body['pwd']};
         if(type == 'post'){
-            Hospital.findOne({sn:req.body['sn'],pwd:req.body['pwd']},function(err, docs){
+            Hospital.findOne(user,function(err, docs){
                 if(err) {
                     console.log(err);
                     res.render('error',{});
                 } else {
                     if(docs) {
-                        req.session.user = req.body.sn;
-                        req.session.password = req.body.pwd;
                         res.render('default',{});
                         console.log("登录成功");
+                        req.session.user = user;
+                        console.log(req.session.user)
                     }else {
                         res.redirect('/');
                         console.log("登录错误");
@@ -64,9 +65,14 @@ router.all('/', function(req, res){
                 return;
             }
             res.sendFile(path.join(__dirname,'../public/default.html'));
+            console.log(req.session.user)
         }
 });
 router.all('/hospital', function(req, res){
+    if(!req.session.user) {
+                res.sendFile(path.join(__dirname,'../public/login.html'));
+                return;
+            }
     var type = req.method.toLowerCase();
     switch(type) {
         case 'post' : {
@@ -137,6 +143,10 @@ router.all('/hospital', function(req, res){
 });
 
 router.all('/referral', function(req, res){
+    if(!req.session.user) {
+                res.sendFile(path.join(__dirname,'../public/login.html'));
+                return;
+            }
     var type = req.method.toLowerCase();
     switch(type) {
             case 'post' : {
