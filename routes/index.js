@@ -18,7 +18,7 @@ var HospitalSchema = new Schema({
         telphone: Number,     //联系方式
         createTime: Date,     //创建时间
         lastModifyTime:Date,   //最后修改时间
-        referral:[{ type: Schema.Types.ObjectId, ref:'Referral'}]
+        referral:[{type:Schema.Types.ObjectId, ref:'Referral'}]
 });
 
 var ReferralSchema = new Schema({
@@ -31,8 +31,7 @@ var ReferralSchema = new Schema({
         createTime: Number,
         from : String,
         to : String,
-        status : String,
-        hospital:[{type:Schema.Types.ObjectId,ref:'Hospital'}]
+        status : String
 });
 var Referral = mongoose.model('Referral',ReferralSchema);
 var Hospital = mongoose.model('Hospital',HospitalSchema);
@@ -130,11 +129,20 @@ router.all('/hospital', function(req, res){
             break;
         }
         default : {
-            Hospital.find(function(err, docs){
+            var hospital_msg = {
+                sn : Hospital.sn ,
+                pwd : Hospital.pwd,
+                name: Hospital.name,
+                telphone:Hospital.telphone,
+                createTime:Hospital.createTime,
+                lastModifyTime:Hospital.lastModifyTime
+            }
+            Hospital.find([hospital_msg],function(err, docs){
                 if(err) {
                     res.send(err);
                 } else {
                     res.send(docs);
+                    console.log(docs)
                 }
             });
             break;
@@ -155,13 +163,15 @@ router.all('/referral', function(req, res){
                 rf.status = '未接收';
                 rf.from = '测试转入医院';
                 var referral = new Referral(rf);
-                referral.save(function(err, docs){
-                    if(err) {
-                        res.send(err);
-                    } else {
-                        res.send(docs);
-                    }
-                });
+                referral.save(function(err,doc){
+                    if(err) return res.send(doc);
+                        Hospital.findOne({sn:req.session.sn},function(err,referral){
+                            if(err) return console.log(referral);
+                                Hospital.create({_id:doc._id},function(err,docs){
+                                    if(err) return res.send(docs);console.log(docs);
+                                })
+                            }) 
+                        });
                 break;
             }
             case 'put' : {
@@ -192,12 +202,13 @@ router.all('/referral', function(req, res){
                     opt.createTime = {$gt:Number(req.query['dt'])};
                 }
                 console.log(opt);
+                
                 // 子母表查询 populate()
-                Hospital.find(opt).populate("referral").exec(function(err, docs){
+                Referral.find({sn:req.session.user.sn}).populate("referral").exec(function(err, docs){
                    if (err) {
                     res.send(err);
                    } else {
-                    res.send(docs);
+                    return res.send(docs);
                     console.log(docs);
                    } 
                 });
