@@ -165,11 +165,8 @@ router.all('/referral', function(req, res){
                 var referral = new Referral(rf);
                 referral.save(function(err,doc){
                     if(err) return res.send(doc);
-                        Hospital.findOne({sn:req.session.sn},function(err,referral){
-                            if(err) return this
-                                .create({referral:doc._id},function(err,docs){
-                                    if(err) return res.send(docs);console.log(docs);
-                                })
+                        Hospital.findOne({sn:req.session.sn},{'$push':{'referral':{'id':doc._id}}},function(err,referral){
+                            if(err) return res.send(docs);console.log(docs);
                             })
                         })
                 break;
