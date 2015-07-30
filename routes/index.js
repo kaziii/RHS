@@ -166,12 +166,12 @@ router.all('/referral', function(req, res){
                 referral.save(function(err,doc){
                     if(err) return res.send(doc);
                         Hospital.findOne({sn:req.session.sn},function(err,referral){
-                            if(err) return console.log(referral);
-                                Hospital.create({_id:doc._id},function(err,docs){
+                            if(err) return this
+                                .create({referral:doc._id},function(err,docs){
                                     if(err) return res.send(docs);console.log(docs);
                                 })
-                            }) 
-                        });
+                            })
+                        })
                 break;
             }
             case 'put' : {
