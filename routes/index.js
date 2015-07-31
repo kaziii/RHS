@@ -129,15 +129,7 @@ router.all('/hospital', function(req, res){
             break;
         }
         default : {
-            var hospital_msg = {
-                sn : Hospital.sn ,
-                pwd : Hospital.pwd,
-                name: Hospital.name,
-                telphone:Hospital.telphone,
-                createTime:Hospital.createTime,
-                lastModifyTime:Hospital.lastModifyTime
-            }
-            Hospital.find([hospital_msg],function(err, docs){
+            Hospital.find(function(err, docs){
                 if(err) {
                     res.send(err);
                 } else {
@@ -164,12 +156,16 @@ router.all('/referral', function(req, res){
                 rf.from = '测试转入医院';
                 var referral = new Referral(rf);
                 referral.save(function(err,doc){
-                    if(err) return res.send(doc);
-                        Hospital.findOne({sn:req.session.sn},function(err,referral){
-                            if(err) return this
-                                .create({referral:doc._id},function(err,docs){
-                                    if(err) return res.send(docs);console.log(docs);
-                                })
+                    if(err) return res.send(doc);console.log(doc);
+                        Hospital.update({sn:req.session.user.sn},{'$push':{'referral':doc._id}},function(err,docs){
+                                if(err) {
+                                    res.send(err);
+                                    console.log(err);
+                                } else{
+                                  res.send(docs);
+                                  console.log(docs);
+                                  console.log(req.session.user.sn);  
+                                }  
                             })
                         })
                 break;
@@ -193,7 +189,7 @@ router.all('/referral', function(req, res){
                 var type = req.query['type'];
                 var opt = {};
                 if(type == 'in') {
-                    opt.to = '成都双楠医院';
+                    
                 }
                 if(type == 'out') {
                     opt.from = '测试转入医院';
@@ -202,14 +198,14 @@ router.all('/referral', function(req, res){
                     opt.createTime = {$gt:Number(req.query['dt'])};
                 }
                 console.log(opt);
-                
-                // 子母表查询 populate()
-                Referral.find({sn:req.session.user.sn}).populate("referral").exec(function(err, docs){
+                // 子母表查询 
+                Hospital.findOne({sn:req.session.user.sn}).populate('referral').exec(function(err, docs){
                    if (err) {
                     res.send(err);
+                    console.log(err);
                    } else {
-                    return res.send(docs);
-                    console.log(docs);
+                    res.send(docs.referral);
+                    console.log(docs.referral);
                    } 
                 });
                 break;
