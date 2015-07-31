@@ -1,7 +1,8 @@
 var HRS = angular.module('HRS', ['ngRoute', 'datatables', 'chieffancypants.loadingBar'], function ($compileProvider) {
     $compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|data):/);
 });
-
+// directive 局部路由刷新
+HRS.directive('tabelshref',['$scope'])
 HRS.config(['$routeProvider', '$locationProvider',function ($routeProvider, $locationProvider) {
     $routeProvider
         .when('/out', {
