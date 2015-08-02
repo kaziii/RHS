@@ -174,6 +174,14 @@ HRS.controller('ReferralCtrl', ['$http' , '$scope', 'DTOptionsBuilder', 'DTColum
         });
     }
 }]);
+HRS.controller('AlertDemoCtrl',['$scope',function($scope,docs){
+    $scope.alert ={msg:'有一名新的病例转入,是否要接收呢?'}
+  
+ 
+  $scope.closeAlert = function(index) {
+    $scope.alerts.splice(index, 1);
+  };
+}]);
 
 function setNav(idx){
     $('.navbar-nav li').removeClass('active');

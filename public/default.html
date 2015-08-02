@@ -12,6 +12,13 @@
 <body ng-app="HRS">
 
 <header class="navbar navbar-collapse navbar-default" role="banner">
+<!-- 消息推送 -->
+<div ng-controller="AlertDemoCtrl" class="alert alert-success">
+  <alert  type="alert.type"  >{{alert.msg}}</alert>
+  <a class="btn btn-default"  role="button" ng-click=>接收</a>
+  <a class="btn btn-default"  role="button">拒绝</a>
+  <a class="close" close="closeAlert($index)"><span aria-hidden="true">&times;</span></a>
+</div>
     <div class="container">
         <div class="navbar-header">
             <button class="navbar-toggle collapsed" type="button" data-toggle="collapse" data-target="#bs-navbar" aria-controls="bs-navbar" aria-expanded="false">
