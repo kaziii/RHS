@@ -175,17 +175,6 @@ HRS.controller('ReferralCtrl', ['$http' , '$scope', 'DTOptionsBuilder', 'DTColum
     }
 }]);
 
-HRS.directive('tabelshref',['$route','$watch',{$route,$watch,function(
-        restrict:'A',
-        link:function(scope,elem,attrs){
-            return;
-            $scope.$watch('$index',function{
-                $route.reload();
-            })
-        }
-        )
-    }]);
-
 function setNav(idx){
     $('.navbar-nav li').removeClass('active');
     $('.navbar-nav li').eq(idx).addClass('active');
