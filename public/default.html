@@ -9,15 +9,14 @@
     <link href="bower_components/angular-loading-bar/src/loading-bar.css" type="text/css" rel="stylesheet" />
     <link href="js/fontAwesome/css/font-awesome.min.css" type="text/css" rel="stylesheet" />
 </head>
-<body ng-app="HRS">
-
+<body ng-app="HRS" ng-controller="RootCtrl">
 <header class="navbar navbar-collapse navbar-default" role="banner">
 <!-- 消息推送 -->
-<div ng-controller="AlertDemoCtrl" class="alert alert-success">
+<div class="alert alert-success" ng-show="visible" ng-controller="AlertDemoCtrl as alertdemo">
   <alert  type="alert.type"  >{{alert.msg}}</alert>
-  <a class="btn btn-default"  role="button" ng-click=>接收</a>
-  <a class="btn btn-default"  role="button">拒绝</a>
-  <a class="close" close="closeAlert($index)"><span aria-hidden="true">&times;</span></a>
+  <a class="btn btn-default"  role="button" ng-click="alertdemo.Accept()" method="put">接收</a>
+  <a class="btn btn-default"  role="button" ng-click="alertdemo.Refuse()" method="">拒绝</a>
+  <a class="close" ng-click="alertdemo.closeAlert()"><span aria-hidden="true">&times;</span></a>
 </div>
     <div class="container">
         <div class="navbar-header">

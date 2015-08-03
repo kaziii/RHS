@@ -101,7 +101,7 @@ HRS.controller('HospitalCtrl', ['$http' , '$scope', 'DTOptionsBuilder', 'DTColum
             self.items = docs;
         })
         .error(function(data,header,config,status){
-            alert(status);
+            console.log(status);
         });
 }]);
 
@@ -110,7 +110,8 @@ HRS.controller('ReferralCtrl', ['$http' , '$scope', 'DTOptionsBuilder', 'DTColum
     self.info = {};
 
     self.items = new Array();
-
+    
+        
     self.dtOptions = DTOptionsBuilder.newOptions()
         .withOption('aLengthMenu', [[10, 20, 50, -1], [10, 20, 50, 'All']]) // Length of how many to show per pagination.
         .withOption('language', tableLanguge)
@@ -134,6 +135,8 @@ HRS.controller('ReferralCtrl', ['$http' , '$scope', 'DTOptionsBuilder', 'DTColum
     $http['get'](url+'/referral?type='+type).success(function (docs) {
         self.items = docs;
         if(docs.length > 0) {
+            $scope.lastGet = (new Date()).getTime();
+        } else {
             $scope.lastGet = (new Date()).getTime();
         }
     });
@@ -166,6 +169,7 @@ HRS.controller('ReferralCtrl', ['$http' , '$scope', 'DTOptionsBuilder', 'DTColum
                 self.info[k] = '';
             }
         });
+        $scope.$emit('to-parint',self.items);
     }
 
     self.remove = function(index) {
@@ -174,14 +178,36 @@ HRS.controller('ReferralCtrl', ['$http' , '$scope', 'DTOptionsBuilder', 'DTColum
         });
     }
 }]);
-HRS.controller('AlertDemoCtrl',['$scope',function($scope,docs){
-    $scope.alert ={msg:'有一名新的病例转入,是否要接收呢?'}
-  
- 
-  $scope.closeAlert = function(index) {
-    $scope.alerts.splice(index, 1);
+
+HRS.controller('RootCtrl',['$scope',function($scope){
+    $scope.$on('to-parint',function(e,items){
+        $scope.$broadcast('to-child',items)
+    })
+}])
+//
+HRS.controller('AlertDemoCtrl',['$scope','$http',function($scope,$http){
+    var self = this;
+    $scope.alert ={msg:'有一名新的病例转入,是否要接收呢?'};
+    $scope.visible = true;
+    $scope.$on('to-child',function(e,items){
+        $scope.$watch('items',function(){
+                console.log(items);
+                $scope.visible = true;
+        },true);
+    });
+    
+  self.Accept = function(index){
+   
   };
+  self.Refuse = function(index){
+   
+  };
+ 
+  self.closeAlert = function() {
+    $scope.visible = false
+  }
 }]);
+
 
 function setNav(idx){
     $('.navbar-nav li').removeClass('active');

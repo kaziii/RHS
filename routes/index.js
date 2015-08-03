@@ -160,11 +160,8 @@ router.all('/referral', function(req, res){
                         Hospital.update({sn:req.session.user.sn},{'$push':{'referral':doc._id}},function(err,docs){
                                 if(err) {
                                     res.send(err);
-                                    console.log(err);
                                 } else{
-                                  res.send(docs);
-                                  console.log(docs);
-                                  console.log(req.session.user.sn);  
+                                  res.send(docs);  
                                 }  
                             })
                         })
@@ -185,30 +182,24 @@ router.all('/referral', function(req, res){
                 });
                 break;
             }
-            default : {
+            default : { 
+               
                 var type = req.query['type'];
-                var opt = {};
                 if(type == 'in') {
-                    
+                    opt = ''
                 }
                 if(type == 'out') {
-                    opt.from = '测试转入医院';
+                    Hospital.findOne({sn:req.session.user.sn}).populate('referral').exec(function(err, docs){
+                        if (err) {
+                            res.send(err);
+                            console.log(err);
+                        } else {
+                            res.send(docs.referral);
+                            console.log(docs.referral);
+                        }
+                    });
+                    break;
                 }
-                if(req.query['dt']){
-                    opt.createTime = {$gt:Number(req.query['dt'])};
-                }
-                console.log(opt);
-                // 子母表查询 
-                Hospital.findOne({sn:req.session.user.sn}).populate('referral').exec(function(err, docs){
-                   if (err) {
-                    res.send(err);
-                    console.log(err);
-                   } else {
-                    res.send(docs.referral);
-                    console.log(docs.referral);
-                   } 
-                });
-                break;
             }
         }
     });
