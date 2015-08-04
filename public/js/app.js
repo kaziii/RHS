@@ -105,7 +105,7 @@ HRS.controller('HospitalCtrl', ['$http' , '$scope', 'DTOptionsBuilder', 'DTColum
         });
 }]);
 
-HRS.controller('ReferralCtrl', ['$http' , '$scope', 'DTOptionsBuilder', 'DTColumnDefBuilder',function($http , $scope, DTOptionsBuilder, DTColumnDefBuilder){
+HRS.controller('ReferralCtrl', ['$location','$route','$http' , '$scope', 'DTOptionsBuilder', 'DTColumnDefBuilder',function($location,$route,$http , $scope, DTOptionsBuilder, DTColumnDefBuilder){
     var self = this;
     self.info = {};
 
@@ -134,11 +134,10 @@ HRS.controller('ReferralCtrl', ['$http' , '$scope', 'DTOptionsBuilder', 'DTColum
 
     $http['get'](url+'/referral?type='+type).success(function (docs) {
         self.items = docs;
+        console.log(self.items);
         if(docs.length > 0) {
             $scope.lastGet = (new Date()).getTime();
-        } else {
-            $scope.lastGet = (new Date()).getTime();
-        }
+        } 
     });
 
 
@@ -146,7 +145,6 @@ HRS.controller('ReferralCtrl', ['$http' , '$scope', 'DTOptionsBuilder', 'DTColum
     $http['get'](url + '/hospital').success(function (docs) {
         self.hospital = docs;
         if(type == 'in') {
-            setInterval(function(){
                 if(!$scope.lastGet) return;
                 $http['get'](url+'/referral?type='+type+'&dt='+$scope.lastGet).success(function (docs) {
                     var arr = self.items;
@@ -158,7 +156,6 @@ HRS.controller('ReferralCtrl', ['$http' , '$scope', 'DTOptionsBuilder', 'DTColum
                         $scope.lastGet = (new Date()).getTime();
                     }
                 });
-            },10000);
         }
     });
 
@@ -169,24 +166,37 @@ HRS.controller('ReferralCtrl', ['$http' , '$scope', 'DTOptionsBuilder', 'DTColum
                 self.info[k] = '';
             }
         });
-        $scope.$emit('to-parint',self.items);
+        return $scope.$emit('to-parint',self.items);
     }
 
     self.remove = function(index) {
         $http['delete'](url+'/referral?id='+self.items[index]._id).success(function(result){
             self.items.splice(index, 1);
         });
+        $route.reload();
+    }
+    self.accept = function(index){
+        $http['put'](url+'/referral?id='+self.items[index]._id).success(function(result){
+            self.items[index].status = result;
+        })
+    }
+    self.reject = function(index){
+        $http['get'](url+'/referral?id='+self.items[index]._id).success(function(result){
+            self.items[index] = result;
+        })
     }
 }]);
-
+// 父级 controller
 HRS.controller('RootCtrl',['$scope',function($scope){
     $scope.$on('to-parint',function(e,items){
-        $scope.$broadcast('to-child',items)
+        $scope.$broadcast('to-child',items);
     })
+    return;
 }])
-//
+// 消息弹出控制
 HRS.controller('AlertDemoCtrl',['$scope','$http',function($scope,$http){
     var self = this;
+    self.items = new Array();
     $scope.alert ={msg:'有一名新的病例转入,是否要接收呢?'};
     $scope.visible = true;
     $scope.$on('to-child',function(e,items){
@@ -197,7 +207,9 @@ HRS.controller('AlertDemoCtrl',['$scope','$http',function($scope,$http){
     });
     
   self.Accept = function(index){
-   
+   $http['put'](url+'referral?id'+self.items[index]._id).success(function(){
+
+            })
   };
   self.Refuse = function(index){
    
@@ -207,7 +219,6 @@ HRS.controller('AlertDemoCtrl',['$scope','$http',function($scope,$http){
     $scope.visible = false
   }
 }]);
-
 
 function setNav(idx){
     $('.navbar-nav li').removeClass('active');

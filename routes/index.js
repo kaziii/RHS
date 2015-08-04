@@ -18,7 +18,8 @@ var HospitalSchema = new Schema({
         telphone: Number,     //联系方式
         createTime: Date,     //创建时间
         lastModifyTime:Date,   //最后修改时间
-        referral:[{type:Schema.Types.ObjectId, ref:'Referral'}]
+        referral:[{type:Schema.Types.ObjectId, ref:'Referral'}],  //转出病例
+        intoreferral:[{type:Schema.Types.ObjectId,ref:'Referral'}] //转入病例
 });
 
 var ReferralSchema = new Schema({
@@ -157,37 +158,42 @@ router.all('/referral', function(req, res){
                 var referral = new Referral(rf);
                 referral.save(function(err,doc){
                     if(err) return res.send(doc);console.log(doc);
-                        Hospital.update({sn:req.session.user.sn},{'$push':{'referral':doc._id}},function(err,docs){
-                                if(err) {
-                                    res.send(err);
-                                } else{
-                                  res.send(docs);  
-                                }  
+                        Hospital.update({sn:req.session.user.sn},{'$push':{'referral':doc._id}},function(err){
+                                if(err) return ;  
+                                var to = doc.to;
+                                Hospital.update({name:to},{'$push':{'intoreferral':doc._id}},function(err){
+                                    if(err) return;
+                                })    
                             })
                         })
                 break;
             }
+            // 根据id找到文档 根据from 存入intoreferral
             case 'put' : {
-    
+                var id = req.query['id'];
+                Referral.find(id,function(err,docs){
+                    var from = docs.from;
+                    Hospital.update(from,{'$push':{'intoreferral':docs._id}},function(err,docs){
+                        if(err){
+                            res.send(err);
+                        } else{
+                            res.send(docs)
+                        }
+                    })    
+                })
                 break;
             }
+            // 删除 hospital 中referral 中的id使其 referral任然存在 并被其他账户读取到 
             case 'delete' : {
                 var id = req.query['id'];
-                Referral.findByIdAndRemove(id, function(err){
-                    if(err) {
-                        res.send(err);
-                    } else {
-                        res.send('ok');
-                    }
-                });
+                Hospital.update(id,{'$pull':{'referral':id}},function(err,docs){
+                    if(err) return console.log(docs);    
+                })
                 break;
             }
-            default : { 
-               
+            // 自定义referral 页面 IN OR OUT 的默认值
+            default : {
                 var type = req.query['type'];
-                if(type == 'in') {
-                    opt = ''
-                }
                 if(type == 'out') {
                     Hospital.findOne({sn:req.session.user.sn}).populate('referral').exec(function(err, docs){
                         if (err) {
@@ -197,6 +203,14 @@ router.all('/referral', function(req, res){
                             res.send(docs.referral);
                             console.log(docs.referral);
                         }
+                    });
+                    break;
+                }
+                if(type == 'in') {
+                    Hospital.findOne({sn:req.session.user.sn}).populate('intoreferral').exec(function(err,docs){
+                        if(err) return 
+                            res.send(docs.intoreferral);
+                            console.log(docs.intoreferral);
                     });
                     break;
                 }
