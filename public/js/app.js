@@ -134,10 +134,11 @@ HRS.controller('ReferralCtrl', ['$location','$route','$http' , '$scope', 'DTOpti
 
     $http['get'](url+'/referral?type='+type).success(function (docs) {
         self.items = docs;
-        console.log(self.items);
+        console.log(self.items.name);
         if(docs.length > 0) {
             $scope.lastGet = (new Date()).getTime();
-        } 
+        }
+        $scope.$emit('ChildName',self.items.name); 
     });
 
 
@@ -177,18 +178,23 @@ HRS.controller('RootCtrl',['$scope',function($scope){
         $scope.$broadcast('to-child',items);
     })
     return;
-    $scope.name = 
+    $scope.$on('ChildName',function(e,items){
+        $scope.items = {name:items.name}    
+    })
 }])
 // 消息弹出控制
 HRS.controller('AlertDemoCtrl',['$scope','$http',function($scope,$http){
     var self = this;
     self.items = new Array();
-    $scope.alert ={msg:'有一名新的病例转入,是否要接收呢?'};
-    $scope.visible = false;
+    $scope.visible = true;
     $scope.$on('to-child',function(e,items){
-        $scope.$watch('items',function(){
-                console.log(items);
-                $scope.visible = false;
+        $scope.$watch('items',function(e,items){
+                if(items.length = 1){
+                    $scope.alert = {msg:'有一名新的病例转入,是否要接收呢?'}
+                }
+                if(items.length > 1){
+                    $scope.alert = {msg:'有多位患者转入，前去查看?'}
+                }
         },true);
     });
     
