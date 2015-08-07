@@ -51,6 +51,7 @@ router.all('/', function(req, res){
                         res.render('default',{});
                         console.log("登录成功");
                         req.session.user = user;
+                        req.session.user.name = docs.name; 
                         console.log(req.session.user)
                     }else {
                         res.redirect('/');
@@ -154,16 +155,16 @@ router.all('/referral', function(req, res){
                 var rf = req.body.referral;
                 rf.createTime = (new Date()).getTime();
                 rf.status = '未接收';
-                rf.from = '测试转入医院';
+                rf.from = req.session.user.name;
                 var referral = new Referral(rf);
                 referral.save(function(err,doc){
                     if(err) return res.send(doc);console.log(doc);
-                        Hospital.update({sn:req.session.user.sn},{'$push':{'referral':doc._id}},function(err){
-                                if(err) return ;  
+                        Hospital.update({sn:req.session.user.sn},{'$push':{'referral':doc._id}},function(err,docs){
+                                if(err) return console.log(docs);
                                 var to = doc.to;
-                                Hospital.update({name:to},{'$push':{'intoreferral':doc._id}},function(err){
-                                    if(err) return;
-                                })    
+                                Hospital.update({name:to},{'$push':{'intoreferral':doc._id}},function(err,docs){
+                                    if(err) return console.log(docs);
+                                })
                             })
                         })
                 break;
@@ -171,15 +172,9 @@ router.all('/referral', function(req, res){
             // 根据id找到文档 根据from 存入intoreferral
             case 'put' : {
                 var id = req.query['id'];
-                Referral.find(id,function(err,docs){
-                    var from = docs.from;
-                    Hospital.update(from,{'$push':{'intoreferral':docs._id}},function(err,docs){
-                        if(err){
-                            res.send(err);
-                        } else{
-                            res.send(docs)
-                        }
-                    })    
+                var st = '已确认';
+                Referral.update(id,{$set:{status:st}},function(err,docs){
+                    if(err) return console.log(docs);
                 })
                 break;
             }
@@ -194,6 +189,14 @@ router.all('/referral', function(req, res){
             // 自定义referral 页面 IN OR OUT 的默认值
             default : {
                 var type = req.query['type'];
+                if(type == 'add') {
+                    Hospital.findOne({sn:req.session.user.sn},function(err,docs){
+                        if(err) return 
+                            console.log(docs.name);
+                            res.send(docs)
+                    })
+                    break;
+                }
                 if(type == 'out') {
                     Hospital.findOne({sn:req.session.user.sn}).populate('referral').exec(function(err, docs){
                         if (err) {
@@ -214,8 +217,17 @@ router.all('/referral', function(req, res){
                     });
                     break;
                 }
+                if(req.query['dt']){
+                    opt.createTime = {$gt:Number(req.query['dt'])};
+                }
+                console.log(opt);
             }
         }
     });
 
+router.all('/logout',function(req,res){
+    console.log(req.session.user);
+    delete req.session.user;
+    res.redirect('/')
+})
 module.exports = router;

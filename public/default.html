@@ -14,8 +14,8 @@
 <!-- 消息推送 -->
 <div class="alert alert-success" ng-show="visible" ng-controller="AlertDemoCtrl as alertdemo">
   <alert  type="alert.type"  >{{alert.msg}}</alert>
-  <a class="btn btn-default"  role="button" ng-click="alertdemo.Accept()" method="put">接收</a>
-  <a class="btn btn-default"  role="button" ng-click="alertdemo.Refuse()" method="">拒绝</a>
+  <a class="btn btn-default"  role="button" ng-click="alertdemo.Accept()" method="put">确认</a>
+  <a class="btn btn-default"  role="button" ng-click="alertdemo.Refuse()" method="">接收</a>
   <a class="close" ng-click="alertdemo.closeAlert()"><span aria-hidden="true">&times;</span></a>
 </div>
     <div class="container">
@@ -44,7 +44,8 @@
                 </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="#/logout">退出系统</a></li>
+                <li ng-bind='name'></li>
+                <li><a href="/logout">退出系统</a></li>
             </ul>
         </nav>
     </div>

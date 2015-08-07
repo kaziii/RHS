@@ -144,19 +144,6 @@ HRS.controller('ReferralCtrl', ['$location','$route','$http' , '$scope', 'DTOpti
 
     $http['get'](url + '/hospital').success(function (docs) {
         self.hospital = docs;
-        if(type == 'in') {
-                if(!$scope.lastGet) return;
-                $http['get'](url+'/referral?type='+type+'&dt='+$scope.lastGet).success(function (docs) {
-                    var arr = self.items;
-                    for(var i in docs) {
-                        arr.push(docs[i]);
-                    }
-                    self.items = arr;
-                    if(docs.length > 0) {
-                        $scope.lastGet = (new Date()).getTime();
-                    }
-                });
-        }
     });
 
     self.save = function() {
@@ -166,24 +153,22 @@ HRS.controller('ReferralCtrl', ['$location','$route','$http' , '$scope', 'DTOpti
                 self.info[k] = '';
             }
         });
-        return $scope.$emit('to-parint',self.items);
+        $scope.$emit('to-parint',self.items);
+        $location.path('/out');
     }
 
     self.remove = function(index) {
         $http['delete'](url+'/referral?id='+self.items[index]._id).success(function(result){
             self.items.splice(index, 1);
         });
+        
         $route.reload();
     }
     self.accept = function(index){
         $http['put'](url+'/referral?id='+self.items[index]._id).success(function(result){
-            self.items[index].status = result;
-        })
-    }
-    self.reject = function(index){
-        $http['get'](url+'/referral?id='+self.items[index]._id).success(function(result){
-            self.items[index] = result;
-        })
+        
+                    });
+        $route.reload();
     }
 }]);
 // 父级 controller
@@ -192,27 +177,29 @@ HRS.controller('RootCtrl',['$scope',function($scope){
         $scope.$broadcast('to-child',items);
     })
     return;
+    $scope.name = 
 }])
 // 消息弹出控制
 HRS.controller('AlertDemoCtrl',['$scope','$http',function($scope,$http){
     var self = this;
     self.items = new Array();
     $scope.alert ={msg:'有一名新的病例转入,是否要接收呢?'};
-    $scope.visible = true;
+    $scope.visible = false;
     $scope.$on('to-child',function(e,items){
         $scope.$watch('items',function(){
                 console.log(items);
-                $scope.visible = true;
+                $scope.visible = false;
         },true);
     });
     
   self.Accept = function(index){
-   $http['put'](url+'referral?id'+self.items[index]._id).success(function(){
+   $http['put'](url+'referral?id'+self.items[index]._id).success(function(result){
 
             })
+   $scope.visible = false;
   };
   self.Refuse = function(index){
-   
+    $scope.visible = false;
   };
  
   self.closeAlert = function() {
