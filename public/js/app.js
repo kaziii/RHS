@@ -108,9 +108,8 @@ HRS.controller('HospitalCtrl', ['$http' , '$scope', 'DTOptionsBuilder', 'DTColum
 HRS.controller('ReferralCtrl', ['$location','$route','$http' , '$scope', 'DTOptionsBuilder', 'DTColumnDefBuilder',function($location,$route,$http,$scope, DTOptionsBuilder, DTColumnDefBuilder){
     var self = this;
     self.info = {};
-
+    self.editIndex = -1;
     self.items = new Array();
-    
         
     self.dtOptions = DTOptionsBuilder.newOptions()
         .withOption('aLengthMenu', [[10, 20, 50, -1], [10, 20, 50, 'All']]) // Length of how many to show per pagination.
@@ -139,22 +138,24 @@ HRS.controller('ReferralCtrl', ['$location','$route','$http' , '$scope', 'DTOpti
         }
         if(type = 'in'){
                 $http['get'](url+'/referral?type=in').success(function (docss){
+                    var oldlength = docss.length;
                     setInterval(function(){
-                        if(!$scope.lastGet) return;
                         $http['get'](url+'/referral?type=in').success(function (doc){
                                 var newlength = doc.length;
-                                var oldlength = docss.length;
-                                if(newlength - oldlength == 1){
-                                    $scope.$emit('to-parint',doc);
-                                    console.log('等于1');         
-                                }
-                                if(newlength - oldlength > 1){
-                                    $scope.$emit('to-parint',doc);
-                                    console.log('大于1');
-                                }
-                        }) 
-                    },5000)    
-                }) 
+                                $scope.change_doc = doc
+                                $scope.$watch('change_doc',function (newValue,oldValue){
+                                    if(newlength - oldlength == 1){
+                                        $scope.$emit('to-parint',newValue);
+                                        console.log(newValue);         
+                                    }
+                                    if(newlength - oldlength > 1){
+                                        $scope.$emit('to-parint',doc);
+                                        console.log('大于1');
+                                    }        
+                                })
+                    }) 
+                },500000)    
+            }) 
         }   
     });
 
@@ -179,13 +180,17 @@ HRS.controller('ReferralCtrl', ['$location','$route','$http' , '$scope', 'DTOpti
         $http['delete'](url+'/referral?id='+self.items[index]._id).success(function(result){
             self.items.splice(index, 1);
         });
-        $route.reload();
     }
     self.accept = function(index){
-        $http['put'](url+'/referral?id='+self.items[index]._id).success(function(result){
-        
-                    });
-        $route.reload();
+        $http['put'](url+'/referral?id='+self.items[index]._id,{status:'已确认'}).success(function(doc){
+            $route.reload();
+            console.log(self.items[index]._id);
+        });
+    }
+    self.reject = function(index){
+        $http['put'](url+'/referral?id='+self.items[index]._id,{status:'已接收'}).success(function(doc){
+            $route.reload();
+        });
     }
 }]);
 // 父级 controller
@@ -193,11 +198,7 @@ HRS.controller('RootCtrl',['$scope','$rootScope','$http',function($rootScope,$sc
     var self = this;
     $scope.visible = false;
     $scope.$on('to-parint',function(e,doc){
-        console.log(doc);
-        $scope.$watch('doc',function (newValue,oldValue){
-            if(newValue != oldValue){
-                var newlength = newValue.length;
-                var oldlength = oldValue.length;
+            console.log(doc);
                 if(newlength - oldlength == 1){
                     console.log(doc.length);
                     $scope.visible = true;
@@ -207,9 +208,7 @@ HRS.controller('RootCtrl',['$scope','$rootScope','$http',function($rootScope,$sc
                     console.log(docs.length);
                     $scope.visible = true;
                     $scope.alert = {msg:'有多位患者转入，前去查看?'}
-                }    
-            }
-        })
+                }
     });
     self.closeAlert = function() {
     $scope.visible = false

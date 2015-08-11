@@ -176,18 +176,20 @@ router.all('/referral', function(req, res){
                 break;
             }
             // 根据id找到文档 根据from 存入intoreferral
-            case 'put' : {
-                var id = req.query['id'];
-                var st = '已确认';
-                Referral.update(id,{$set:{status:st}},function(err,docs){
-                    if(err) return console.log(docs);
+            case 'put' :{
+                var id =req.query['id'];
+                var st = req.body.status;
+                Referral.update(id,{'$set':{'status':st}},function(err,docs){
+                    if(err) return 
+                        console.log(id);
+                        res.send('ok');
                 })
                 break;
             }
             // 删除 hospital 中referral 中的id使其 referral任然存在 并被其他账户读取到 
             case 'delete' : {
                 var id = req.query['id'];
-                Hospital.update(id,{'$pull':{'referral':id}},function(err,docs){
+                Hospital.findOneAndUpdate(id,{'$pull':{'referral':id}},function(err,docs){
                     if(err) return console.log(docs);    
                 })
                 break;
