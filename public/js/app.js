@@ -105,7 +105,7 @@ HRS.controller('HospitalCtrl', ['$http' , '$scope', 'DTOptionsBuilder', 'DTColum
         });
 }]);
 
-HRS.controller('ReferralCtrl', ['$location','$route','$http' , '$scope', 'DTOptionsBuilder', 'DTColumnDefBuilder',function($location,$route,$http , $scope, DTOptionsBuilder, DTColumnDefBuilder){
+HRS.controller('ReferralCtrl', ['$location','$route','$http' , '$scope', 'DTOptionsBuilder', 'DTColumnDefBuilder',function($location,$route,$http,$scope, DTOptionsBuilder, DTColumnDefBuilder){
     var self = this;
     self.info = {};
 
@@ -134,17 +134,35 @@ HRS.controller('ReferralCtrl', ['$location','$route','$http' , '$scope', 'DTOpti
 
     $http['get'](url+'/referral?type='+type).success(function (docs) {
         self.items = docs;
-        console.log(self.items.name);
         if(docs.length > 0) {
             $scope.lastGet = (new Date()).getTime();
         }
-        $scope.$emit('ChildName',self.items.name); 
+        if(type = 'in'){
+                $http['get'](url+'/referral?type=in').success(function (docss){
+                    setInterval(function(){
+                        if(!$scope.lastGet) return;
+                        $http['get'](url+'/referral?type=in').success(function (doc){
+                                var newlength = doc.length;
+                                var oldlength = docss.length;
+                                if(newlength - oldlength == 1){
+                                    $scope.$emit('to-parint',doc);
+                                    console.log('等于1');         
+                                }
+                                if(newlength - oldlength > 1){
+                                    $scope.$emit('to-parint',doc);
+                                    console.log('大于1');
+                                }
+                        }) 
+                    },5000)    
+                }) 
+        }   
     });
 
 
 
     $http['get'](url + '/hospital').success(function (docs) {
         self.hospital = docs;
+
     });
 
     self.save = function() {
@@ -154,7 +172,6 @@ HRS.controller('ReferralCtrl', ['$location','$route','$http' , '$scope', 'DTOpti
                 self.info[k] = '';
             }
         });
-        $scope.$emit('to-parint',self.items);
         $location.path('/out');
     }
 
@@ -162,7 +179,6 @@ HRS.controller('ReferralCtrl', ['$location','$route','$http' , '$scope', 'DTOpti
         $http['delete'](url+'/referral?id='+self.items[index]._id).success(function(result){
             self.items.splice(index, 1);
         });
-        
         $route.reload();
     }
     self.accept = function(index){
@@ -173,30 +189,39 @@ HRS.controller('ReferralCtrl', ['$location','$route','$http' , '$scope', 'DTOpti
     }
 }]);
 // 父级 controller
-HRS.controller('RootCtrl',['$scope',function($scope){
-    $scope.$on('to-parint',function(e,items){
-        $scope.$broadcast('to-child',items);
-    })
-    return;
-    $scope.$on('ChildName',function(e,items){
-        $scope.items = {name:items.name}    
-    })
+HRS.controller('RootCtrl',['$scope','$rootScope','$http',function($rootScope,$scope,$http){
+    var self = this;
+    $scope.visible = false;
+    $scope.$on('to-parint',function(e,doc){
+        console.log(doc);
+        $scope.$watch('doc',function (newValue,oldValue){
+            if(newValue != oldValue){
+                var newlength = newValue.length;
+                var oldlength = oldValue.length;
+                if(newlength - oldlength == 1){
+                    console.log(doc.length);
+                    $scope.visible = true;
+                    $scope.alert = {msg:'有一名新的病例转入,是否要接收呢?'}
+                }
+                if(newlength - oldlength > 1){
+                    console.log(docs.length);
+                    $scope.visible = true;
+                    $scope.alert = {msg:'有多位患者转入，前去查看?'}
+                }    
+            }
+        })
+    });
+    self.closeAlert = function() {
+    $scope.visible = false
+    }
+    $http['put'](url+'/').success(function (docs) {
+        $scope.msg ={name:docs};  
+    });
 }])
 // 消息弹出控制
 HRS.controller('AlertDemoCtrl',['$scope','$http',function($scope,$http){
-    var self = this;
-    self.items = new Array();
-    $scope.visible = true;
-    $scope.$on('to-child',function(e,items){
-        $scope.$watch('items',function(e,items){
-                if(items.length = 1){
-                    $scope.alert = {msg:'有一名新的病例转入,是否要接收呢?'}
-                }
-                if(items.length > 1){
-                    $scope.alert = {msg:'有多位患者转入，前去查看?'}
-                }
-        },true);
-    });
+    
+    
     
   self.Accept = function(index){
    $http['put'](url+'referral?id'+self.items[index]._id).success(function(result){
@@ -208,9 +233,7 @@ HRS.controller('AlertDemoCtrl',['$scope','$http',function($scope,$http){
     $scope.visible = false;
   };
  
-  self.closeAlert = function() {
-    $scope.visible = false
-  }
+  
 }]);
 
 function setNav(idx){

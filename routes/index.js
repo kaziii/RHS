@@ -41,6 +41,11 @@ var Hospital = mongoose.model('Hospital',HospitalSchema);
 router.all('/', function(req, res){
       var type = req.method.toLowerCase();
       var user = {sn:req.body['sn'],pwd:req.body['pwd']};
+        if(type == 'put') {
+            res.send(req.session.user.name);
+            console.log(req.session.user.name);
+            return;
+        }
         if(type == 'post'){
             Hospital.findOne(user,function(err, docs){
                 if(err) {
@@ -64,9 +69,10 @@ router.all('/', function(req, res){
             if(!req.session.user) {
                 res.sendFile(path.join(__dirname,'../public/login.html'));
                 return;
-            }
-            res.sendFile(path.join(__dirname,'../public/default.html'));
-            console.log(req.session.user)
+            }else{
+                res.sendFile(path.join(__dirname,'../public/default.html'));
+                return;    
+            } 
         }
 });
 router.all('/hospital', function(req, res){
@@ -192,8 +198,8 @@ router.all('/referral', function(req, res){
                 if(type == 'add') {
                     Hospital.findOne({sn:req.session.user.sn},function(err,docs){
                         if(err) return 
-                            console.log(docs.name);
-                            res.send(docs)
+                            console.log(docs);
+                            res.send(docs);
                     })
                     break;
                 }
@@ -217,10 +223,6 @@ router.all('/referral', function(req, res){
                     });
                     break;
                 }
-                if(req.query['dt']){
-                    opt.createTime = {$gt:Number(req.query['dt'])};
-                }
-                console.log(opt);
             }
         }
     });

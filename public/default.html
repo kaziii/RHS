@@ -9,7 +9,7 @@
     <link href="bower_components/angular-loading-bar/src/loading-bar.css" type="text/css" rel="stylesheet" />
     <link href="js/fontAwesome/css/font-awesome.min.css" type="text/css" rel="stylesheet" />
 </head>
-<body ng-app="HRS" ng-controller="RootCtrl">
+<body ng-app="HRS" ng-controller="RootCtrl as rootctrl">
 <header class="navbar navbar-collapse navbar-default" role="banner">
     <div class="container">
         <div class="navbar-header">
@@ -37,14 +37,14 @@
                 </li>
             </ul>
             <ul class="nav navbar-nav navbar-right">
-                <li><a href="javascript:;">{{items.name}}</a></li>
+                <li><a href="javascript:;">你好! <strong>{{msg.name}}</strong>，欢迎使用挂号系统</a></li>
                 <li><a href="/logout">退出系统</a></li>
             </ul>
         </nav>
     </div>
 </header>
 <!-- 消息推送 -->
-<div class="alert" ng-show="visible" ng-controller="AlertDemoCtrl as alertdemo" style="width: 100%;position: fixed;top: 0;left: 0;background:#fff;color: #7a7264;box-shadow:1px -3px 19px #999999;;
+<div class="alert" ng-show="visible" style="width: 100%;position: fixed;top: 0;left: 0;background:#fff;color: #7a7264;box-shadow:1px -3px 19px #999999;;
 -moz-box-shadow:1px -3px 19px #999999;;
 -webkit-box-shadow:1px -3px 19px #999999;
 z-index: 99;">
@@ -52,7 +52,7 @@ z-index: 99;">
   <alert  type="alert.type" ng-bind="alert.msg"></alert>
   <a class="btn btn-warning"  role="button" ng-click="alertdemo.Accept()" >确认</a>
   <a class="btn btn-default"  role="button" ng-click="alertdemo.Refuse()" >接收</a>
-  <a class="close" ng-click="alertdemo.closeAlert()"><span aria-hidden="true">&times;</span></a>
+  <a class="close" ng-click="rootctrl.closeAlert()"><span aria-hidden="true">&times;</span></a>
 </div>
 <div class="container">
     <div ng-view>

@@ -23,8 +23,8 @@
             <td>{{r.from}}</td>
             <td>{{r.status}}</td>
             <td>
-                <button ng-click="referral.accept($index)">确认</button>
-                <button ng-click="referral.reject($index)">接收</button>
+                <button ng-click="referral.accept($index)" class="btn btn-warning">确认</button>
+                <button ng-click="referral.reject($index)" class="btn btn-default">接收</button>
             </td>
             <td>{{r.createTime}}</td>
         </tr>
