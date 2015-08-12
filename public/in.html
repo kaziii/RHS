@@ -14,7 +14,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="r in R.items track by $index">
+        <tr ng-repeat="r in R.items">
             <td>{{ r.name }}</td>
             <td>{{r.age}}</td>
             <td>{{r.telphone}}</td>
@@ -23,8 +23,8 @@
             <td>{{r.from}}</td>
             <td>{{r.status}}</td>
             <td>
-                <button ng-click="referral.accept($index)" class="btn btn-warning">确认</button>
-                <button ng-click="referral.reject($index)" class="btn btn-default">接收</button>
+                <button ng-click="referral.accept($index)" class="btn btn-warning" tabels-herf>确认</button>
+                <button ng-click="referral.reject($index)" class="btn btn-default" tabels-herf>接收</button>
             </td>
             <td>{{r.createTime}}</td>
         </tr>

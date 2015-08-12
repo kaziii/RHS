@@ -14,7 +14,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="r in R.items track by $index">
+        <tr ng-repeat="r in R.items">
             <td>{{ r.name }}</td>
             <td>{{r.age}}</td>
             <td>{{r.telphone}}</td>
@@ -23,7 +23,7 @@
             <td>{{r.to}}</td>
             <td>{{r.status}}</td>
             <td>
-                <button ng-click="referral.remove($index)" tabels-herf >删除</button>
+                <button ng-click="referral.remove($index)" tabels-herf  class="btn btn-default">删除</button>
             </td>
             <td>{{r.createTime}}</td>
         </tr>

@@ -56,7 +56,8 @@ router.all('/', function(req, res){
                         res.render('default',{});
                         console.log("登录成功");
                         req.session.user = user;
-                        req.session.user.name = docs.name; 
+                        req.session.user.name = docs.name;
+                        req.session.user.id = docs._id; 
                         console.log(req.session.user)
                     }else {
                         res.redirect('/');
@@ -179,18 +180,31 @@ router.all('/referral', function(req, res){
             case 'put' :{
                 var id =req.query['id'];
                 var st = req.body.status;
-                Referral.update(id,{'$set':{'status':st}},function(err,docs){
-                    if(err) return 
-                        console.log(id);
-                        res.send('ok');
+                Referral.update({_id:id},{$set:{"status":st}},function(err,docs){
+                    if(err) {
+                        res.send(err);
+                        console.log(err);
+                    } else {
+                        res.send(docs.status);
+                        console.log(docs.status);
+                        console.log(docs);
+                    }
                 })
                 break;
             }
             // 删除 hospital 中referral 中的id使其 referral任然存在 并被其他账户读取到 
             case 'delete' : {
                 var id = req.query['id'];
-                Hospital.findOneAndUpdate(id,{'$pull':{'referral':id}},function(err,docs){
-                    if(err) return console.log(docs);    
+                var _id = req.session.user.id;
+                Hospital.update({_id:_id},{$pull:{'referral':id}},function(err,docs){
+                    if(err) {
+                        res.send(err);
+                        console.log(err);
+                    } else {
+                        res.send("ok");
+                        console.log(id);
+                        console.log(docs);
+                    }
                 })
                 break;
             }
