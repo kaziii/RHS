@@ -174,7 +174,7 @@ HRS.controller('ReferralCtrl', ['$location','$route','$http','$scope', 'DTOption
 // 父级 controller
 HRS.controller('RootCtrl',['$scope','$rootScope','$http',function($rootScope,$scope,$http){
     var self = this;
-    $scope.visible = false;
+    $scope.visible = true;
     $scope.$on('to-parint',function (e,data){
         setInterval(function(){
             $http['get'](url+'/referral?type=in').success(function (doc){

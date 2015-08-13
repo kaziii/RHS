@@ -20,7 +20,7 @@ var HospitalSchema = new Schema({
         lastModifyTime:Date,   //最后修改时间
         referral:[{type:Schema.Types.ObjectId, ref:'Referral'}],  //转出病例
         intoreferral:[{type:Schema.Types.ObjectId,ref:'Referral'}], //转入病例
-        intolength:String, //截止注销用户时所有转入病例
+        intolength:Number, //截止注销用户时所有转入病例
 });
 
 var ReferralSchema = new Schema({
@@ -246,15 +246,17 @@ router.all('/referral', function(req, res){
     });
 
 router.all('/logout',function(req,res){
-    res.redirect('/');
-    delete req.session.user;
-    Hospital.findOneAndUpdate({_id:req.session.user.id},function(err,docs){
+    Hospital.findOne({_id:req.session.user.id},function(err,docs){
         if(err) {
             res.send(err);
         } else {
-            db.Hospital.update({_id:req.session.user.id},{$set:{'intolength':docs.intoreferral.length}});
+            console.log(docs);
+            docs.intolength = docs.intoreferral.length;
+            docs.save();
             console.log(docs.intolength);
         }
     });
+    delete req.session.user;
+    res.redirect('/');
 })
 module.exports = router;
