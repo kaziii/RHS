@@ -19,7 +19,8 @@ var HospitalSchema = new Schema({
         createTime: Date,     //创建时间
         lastModifyTime:Date,   //最后修改时间
         referral:[{type:Schema.Types.ObjectId, ref:'Referral'}],  //转出病例
-        intoreferral:[{type:Schema.Types.ObjectId,ref:'Referral'}] //转入病例
+        intoreferral:[{type:Schema.Types.ObjectId,ref:'Referral'}], //转入病例
+        intolength:String, //截止注销用户时所有转入病例
 });
 
 var ReferralSchema = new Schema({
@@ -167,10 +168,11 @@ router.all('/referral', function(req, res){
                 referral.save(function(err,doc){
                     if(err) return res.send(doc);console.log(doc);
                         Hospital.update({sn:req.session.user.sn},{'$push':{'referral':doc._id}},function(err,docs){
-                                if(err) return console.log(docs);
+                                if(err) return ;
                                 var to = doc.to;
                                 Hospital.update({name:to},{'$push':{'intoreferral':doc._id}},function(err,docs){
-                                    if(err) return console.log(docs);
+                                    if(err) return ;
+
                                 })
                             })
                         })
@@ -244,8 +246,15 @@ router.all('/referral', function(req, res){
     });
 
 router.all('/logout',function(req,res){
-    console.log(req.session.user);
+    res.redirect('/');
     delete req.session.user;
-    res.redirect('/')
+    Hospital.findOneAndUpdate({_id:req.session.user.id},function(err,docs){
+        if(err) {
+            res.send(err);
+        } else {
+            db.Hospital.update({_id:req.session.user.id},{$set:{'intolength':docs.intoreferral.length}});
+            console.log(docs.intolength);
+        }
+    });
 })
 module.exports = router;

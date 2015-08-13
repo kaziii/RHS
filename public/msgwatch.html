@@ -1,0 +1,15 @@
+<!-- 消息推送 -->
+<div class="alert" ng-show="visible" style="width: 100%;position: fixed;top: 0;left: 0;background:#fff;color: #7a7264;box-shadow:1px -3px 19px #999999;
+-moz-box-shadow:1px -3px 19px #999999;;
+-webkit-box-shadow:1px -3px 19px #999999;
+z-index: 99;">
+  <span class="glyphicon glyphicon-cog" ></span>
+  <alert  type="alert.type" ng-bind="alert.msg"></alert>
+  <a class="btn btn-warning"  role="button" ng-click="rootctrl.Accept()" >确认</a>
+  <a class="btn btn-default"  role="button" ng-click="rootctrl.Refuse()" >接收</a>
+  <a class="close" ng-click="rootctrl.closeAlert()"><span aria-hidden="true">&times;</span></a>
+</div>
+<div class="container">
+    <div ng-view>
+    </div>
+</div>
