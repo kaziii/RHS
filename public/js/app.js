@@ -174,22 +174,27 @@ HRS.controller('ReferralCtrl', ['$location','$route','$http','$scope', 'DTOption
 // 父级 controller
 HRS.controller('RootCtrl',['$scope','$rootScope','$http',function($rootScope,$scope,$http){
     var self = this;
-    $scope.visible = true;
+    $scope.visible = false;
     $scope.$on('to-parint',function (e,data){
         setInterval(function(){
             $http['get'](url+'/referral?type=in').success(function (doc){
                 console.log(doc.length - data.length);
                 if(doc.length - data.length == 1){
                     $scope.visible = true;
-                    $scope.alert = {msg:'有一名新的病例转入,是否要接收呢?'}
+                    $scope.alert = {msg:'有一名新的病例转入,前去查看'}
+                    return
                 }
                 if(doc.length - data.length > 1){
                     $scope.visible = true;
                     $scope.alert = {msg:'有多位患者转入，前去查看?'}
+                    return
                 }
             })
         },10000)
     })
+    self.Href = function(){
+        $scope.visible = false
+    }
             
     self.closeAlert = function() {
         $scope.visible = false

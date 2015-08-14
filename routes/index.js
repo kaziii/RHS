@@ -55,7 +55,6 @@ router.all('/', function(req, res){
                 } else {
                     if(docs) {
                         res.render('default',{});
-                        console.log("登录成功");
                         req.session.user = user;
                         req.session.user.name = docs.name;
                         req.session.user.id = docs._id; 
