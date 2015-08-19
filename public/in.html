@@ -23,8 +23,8 @@
             <td>{{r.from}}</td>
             <td>{{r.status}}</td>
             <td>
-                <button ng-click="referral.accept($index)" class="btn btn-warning" tabels-herf>确认</button>
-                <button ng-click="referral.reject($index)" class="btn btn-default" tabels-herf>接收</button>
+                <button ng-click="referral.accept($index)" class="btn btn-warning" ng-show="visiblehide" tabels-herf>确认</button>
+                <button ng-click="referral.reject($index)" class="btn btn-default"   tabels-herf>接收</button>
             </td>
             <td>{{r.createTime}}</td>
         </tr>

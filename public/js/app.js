@@ -129,7 +129,7 @@ HRS.controller('ReferralCtrl', ['$location','$route','$http','$scope', 'DTOption
         ,DTColumnDefBuilder.newColumnDef(7).notSortable()
         ,DTColumnDefBuilder.newColumnDef(8).notVisible()
     ];
-
+    $scope.visiblehide = true;
     $http['get'](url+'/referral?type='+type).success(function (docs) {
         self.items = docs;
         if(docs.length > 0) {
@@ -137,6 +137,11 @@ HRS.controller('ReferralCtrl', ['$location','$route','$http','$scope', 'DTOption
         }
         $http['get'](url+'/referral?type=in').success(function (data){
             $scope.$emit('to-parint',data);
+            console.log(self);
+            if(data.status === '已确认'){
+                $scope.visiblehide = false;
+                console.log(data.status);
+            }
         })   
     });
 
@@ -175,6 +180,7 @@ HRS.controller('ReferralCtrl', ['$location','$route','$http','$scope', 'DTOption
 HRS.controller('RootCtrl',['$scope','$rootScope','$http',function($rootScope,$scope,$http){
     var self = this;
     $scope.visible = false;
+    $scope.visiblehide = true;
     $scope.$on('to-parint',function (e,data){
         setInterval(function(){
             $http['get'](url+'/referral?type=in').success(function (doc){
@@ -193,7 +199,8 @@ HRS.controller('RootCtrl',['$scope','$rootScope','$http',function($rootScope,$sc
         },10000)
     })
     self.Href = function(){
-        $scope.visible = false
+        $scope.visiblehide = true;
+        return $route.reload();
     }
             
     self.closeAlert = function() {
