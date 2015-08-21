@@ -33,7 +33,7 @@ var ReferralSchema = new Schema({
         createTime: Number,
         from : String,
         to : String,
-        status : String
+        status : String,
 });
 var Referral = mongoose.model('Referral',ReferralSchema);
 var Hospital = mongoose.model('Hospital',HospitalSchema);
@@ -57,7 +57,7 @@ router.all('/', function(req, res){
                         res.render('default',{});
                         req.session.user = user;
                         req.session.user.name = docs.name;
-                        req.session.user.id = docs._id; 
+                        req.session.user.id = docs._id;
                         console.log(req.session.user)
                     }else {
                         res.redirect('/');
@@ -184,11 +184,8 @@ router.all('/referral', function(req, res){
                 Referral.update({_id:id},{$set:{"status":st}},function(err,docs){
                     if(err) {
                         res.send(err);
-                        console.log(err);
                     } else {
                         res.send(docs.status);
-                        console.log(docs.status);
-                        console.log(docs);
                     }
                 })
                 break;

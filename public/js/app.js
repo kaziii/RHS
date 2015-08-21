@@ -137,11 +137,9 @@ HRS.controller('ReferralCtrl', ['$location','$route','$http','$scope', 'DTOption
         }
         $http['get'](url+'/referral?type=in').success(function (data){
             $scope.$emit('to-parint',data);
-            console.log(self);
-            if(data.status === '已确认'){
-                $scope.visiblehide = false;
-                console.log(data.status);
-            }
+        })
+        $http['get'](url+'/referral?type=add').success(function (data){
+            $scope.$emit('to-data',data);
         })   
     });
 
@@ -177,45 +175,39 @@ HRS.controller('ReferralCtrl', ['$location','$route','$http','$scope', 'DTOption
     }
 }]);
 // 父级 controller
-HRS.controller('RootCtrl',['$scope','$rootScope','$http',function($rootScope,$scope,$http){
+HRS.controller('RootCtrl',['$scope','$http','$route','$location',function($scope,$http,$route,$location){
     var self = this;
     $scope.visible = false;
-    $scope.visiblehide = true;
+    var login = function(){
+        $scope.$on('to-data',function (e,data){
+            var datalength = data.intoreferral.length;
+            var length = datalength - data.intolength;
+            if(datalength > data.intolength){
+                $scope.visible = true;
+                $scope.alert = {msg:'有'+length+'名新的病例转入，前去查看？'}
+            }
+        })
+    }
     $scope.$on('to-parint',function (e,data){
         setInterval(function(){
             $http['get'](url+'/referral?type=in').success(function (doc){
-                console.log(doc.length - data.length);
                 if(doc.length - data.length == 1){
                     $scope.visible = true;
                     $scope.alert = {msg:'有一名新的病例转入,前去查看'}
-                    return
-                }
-                if(doc.length - data.length > 1){
-                    $scope.visible = true;
-                    $scope.alert = {msg:'有多位患者转入，前去查看?'}
                     return
                 }
             })
         },10000)
     })
     self.Href = function(){
-        $scope.visiblehide = true;
-        return $route.reload();
+        $http['get'](url+'/referral?type=in').success(function (doc){
+            $scope.visible = false;
+        })
     }
             
     self.closeAlert = function() {
         $scope.visible = false
     }
-    self.Accept = function(index){
-        $http['put'](url+'referral?id='+doc._id,{status:'已确认'}).success(function (result){
-            $scope.visible = false
-        })
-    };
-    self.Refuse = function(index){
-        $http['put'](url+'referral?id='+doc._id,{status:'已接收'}).success(function (result){
-            $scope.visible = false;    
-        })
-    };
     $http['put'](url+'/').success(function (docs) {
         $scope.msg ={name:docs};  
     });
